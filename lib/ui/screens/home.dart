@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'my_checkbox.dart';
+import '../widgets/my_checkbox.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
