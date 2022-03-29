@@ -189,7 +189,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
                           print('Mi voglio registrare');
-                          Navigator.of(context).pushReplacement(
+                          Navigator.push(
+                            context,
                             MaterialPageRoute(
                               builder: (context) => SignUpScreen(),
                             ),
