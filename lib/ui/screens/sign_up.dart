@@ -26,10 +26,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('SIGN UP'),
-
-      ),
       body: SafeArea(
         child: Form(
           key: _formSignUpKey,
@@ -41,17 +37,45 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: const [
                     FlutterLogo(size: 50),
-                    Text('Welcome Flutter Dojo',
+                    Text('Sign up - Flutter Dojo',
                         style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 const SizedBox(height: 32),
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                    ),
+                    text: 'Hai già un account? ',
+                    children: [
+                      TextSpan(
+                        text: 'Accedi',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            print('Voglio accedere');
+                            Navigator.pop(context);
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(
+                  height: 64,
+                  thickness: 1,
+                  endIndent: 20,
+                  indent: 20,
+                  color: Colors.orange,
+                ),
                 MyTextField(
                   controller: fnController,
                   hintText: 'First Name',
                   labelText: 'First Name label',
                   validator: (input) {
                     if (input!.isEmpty) return "Nome non inserito";
+                    return null;
                   },
                 ),
                 const SizedBox(height: 16),
@@ -78,6 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     }
                     return null;
                   },
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
                 MyTextField(
@@ -91,6 +116,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     return null;
                   },
                   obscureText: obscureText,
+                  suffix: IconButton(
+                    onPressed: () => setState(() {
+                      obscureText = !obscureText;
+                    }),
+                    icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 MyTextField(
@@ -98,24 +129,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   hintText: 'Confirm Password',
                   labelText: 'Confirm Password label',
                   validator: (input) {
-                    if (input == null) return null;
-                    if (input != passwordController.text) {
+                    if (input! != passwordController.text) {
                       return 'La password non corrisponde';
                     }
                     return null;
                   },
                   obscureText: obscureText,
-                  /*suffix: IconButton(
-                    icon: Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: Icon(
-                      obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    ),),
-                    onPressed: () {
-                      setState(() {
-                        obscureText = !obscureText;
-                      });
-                    },),*/
                 ),
                 const SizedBox(height: 16),
                 Consumer(
@@ -149,45 +168,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ? const Padding(
                               padding: EdgeInsets.all(4.0),
                               child: CircularProgressIndicator(
-                          backgroundColor: Colors.white,
-                        ),
-                      )
-                          : Text('Sign Up'),
+                                backgroundColor: Colors.white,
+                              ),
+                            )
+                          : const Text('Sign Up'),
                     );
                   },
                 ),
-                const SizedBox(height: 16),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(color: Colors.black),
-                    text: 'Hai già un account? ',
-                    children: [
-                      TextSpan(
-                        text: 'Accedi',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            print('Voglio accedere');
-                            Navigator.pop(context);
-                            /*Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SignInScreen(),
-                              ),
-                            );*/
-                          },
-                      ),
-                    ],
-                  ),
-                ),
-                /*ElevatedButton(onPressed: (){
-            Navigator.of(context).pop();
-            },
-            child: Text('Indietro'))*/
 
               ],
+          ),
         ),
-      ),
       ),
     );
   }
