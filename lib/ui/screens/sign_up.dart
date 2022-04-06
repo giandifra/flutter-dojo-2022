@@ -56,7 +56,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             print('Voglio accedere');
-                            Navigator.pop(context);
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_)=>SignInScreen()));
+                            //Navigator.pop(context);
                           },
                       ),
                     ],
@@ -120,7 +121,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     onPressed: () => setState(() {
                       obscureText = !obscureText;
                     }),
-                    icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+                    icon: Icon(!obscureText ? Icons.visibility : Icons.visibility_off),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -160,7 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           //Se errore durante sign in mostriamo popup di errore
                           if (!result) {
                             ref.read(errorProvider.notifier).state =
-                            'Sign in fallito';
+                            'Sign up fallito';
                           }
                         }
                       },
