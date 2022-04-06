@@ -189,11 +189,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
                           print('Mi voglio registrare');
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) => SignUpScreen(),
                             ),
+                            // (_) -> means useless parameter
+                            (_) => false, // predicate to remove back button in appbar
                           );
                         },
                     ),
