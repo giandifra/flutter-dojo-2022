@@ -51,7 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   hintText: 'First Name',
                   labelText: 'First Name label',
                   validator: (input) {
-                    if (input == null) return "Nome non inserito";
+                    if (input!.isEmpty) return "Nome non inserito";
                   },
                 ),
                 const SizedBox(height: 16),
@@ -60,8 +60,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   hintText: 'Username',
                   labelText: 'Username label',
                   validator: (input) {
-                    if (input == null) return null;
-                    if (input.length < 3) {
+                    if (input!.length < 3) {
                       return 'Username almeno di 3 lettere';
                     }
                     return null;
@@ -73,7 +72,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   hintText: 'Email',
                   labelText: 'Email label',
                   validator: (input) {
-                    print(input);
                     if (input == null) return null;
                     if (!EmailValidator.validate(input)) {
                       return 'Email non valida';
@@ -87,8 +85,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   hintText: 'Password',
                   labelText: 'Password label',
                   validator: (input) {
-                    if (input == null) return null;
-                    if (input.length < 6) {
+                    if (input!.length < 6) {
                       return 'La password deve essere di almeno 6 caratteri';
                     }
                     return null;
@@ -102,8 +99,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   labelText: 'Confirm Password label',
                   validator: (input) {
                     if (input == null) return null;
-                    if (input.length < 6) {
-                      return 'La password deve corrispondere alla precedente';
+                    if (input != passwordController.text) {
+                      return 'La password non corrisponde';
                     }
                     return null;
                   },
@@ -120,10 +117,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       });
                     },),*/
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 Consumer(
                   builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                    print('BUILD UI SIGN UN BUTTON');
+                    print('BUILD UI SIGN UP BUTTON');
                     final isLoading = ref.watch(isLoadingProvider);
 
                     return ElevatedButton(
