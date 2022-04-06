@@ -7,6 +7,7 @@ class MyTextField extends StatelessWidget {
   final String? hintText;
   final String? labelText;
   final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
 
   const MyTextField({
     Key? key,
@@ -16,6 +17,7 @@ class MyTextField extends StatelessWidget {
     this.obscureText = false,
     this.suffix,
     this.validator,
+    this.keyboardType,
   }) : super(key: key);
 
   @override
@@ -30,6 +32,7 @@ class MyTextField extends StatelessWidget {
         labelText: labelText,
         suffix: suffix,
       ),
+      keyboardType: keyboardType,
     );
   }
 }
