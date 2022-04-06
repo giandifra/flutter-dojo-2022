@@ -30,7 +30,7 @@ class MyTextField extends StatelessWidget {
         border: const OutlineInputBorder(),
         hintText: hintText,
         labelText: labelText,
-        suffix: suffix,
+        suffixIcon: suffix,
       ),
       keyboardType: keyboardType,
     );
