@@ -6,6 +6,7 @@ class MyTextField extends StatelessWidget {
   final Widget? suffix;
   final String? hintText;
   final String? labelText;
+  final String? errorText;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
 
@@ -14,6 +15,7 @@ class MyTextField extends StatelessWidget {
     this.controller,
     this.hintText,
     this.labelText,
+    this.errorText,
     this.obscureText = false,
     this.suffix,
     this.validator,

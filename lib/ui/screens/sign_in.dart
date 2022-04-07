@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dojo_2022/application/sign_in_notifier.dart';
 import 'package:flutter_dojo_2022/ui/screens/sign_up.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
@@ -14,7 +15,12 @@ final errorProvider = StateProvider<String?>((Ref ref) {
   return null;
 });
 
-final usernameControllerProvider = Provider.autoDispose<TextEditingController>((Ref ref) {
+final passwordErrorProvider = StateProvider<String?>((Ref ref) {
+  return null;
+});
+
+final usernameControllerProvider =
+    Provider.autoDispose<TextEditingController>((Ref ref) {
   print('usernameControllerProvider CREATE');
 
   final t = TextEditingController();
@@ -26,7 +32,6 @@ final usernameControllerProvider = Provider.autoDispose<TextEditingController>((
 
   return t;
 });
-
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -125,18 +130,24 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              MyTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                labelText: 'Password label',
-                validator: (input) {
-                  if (input == null) return null;
-                  if (input.length < 6) {
-                    return 'La password deve essere di almeno 6 caratteri';
-                  }
-                  return null;
+              Consumer(
+                builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                  final error = ref.watch(passwordErrorProvider);
+                  return MyTextField(
+                    controller: passwordController,
+                    hintText: 'Password',
+                    labelText: 'Password label',
+                    errorText: error,
+                    obscureText: obscureText,
+                    /*validator: (input) {
+                      if (input == null) return null;
+                      if (input.length < 6) {
+                        return 'La password deve essere di almeno 6 caratteri';
+                      }
+                      return null;
+                    },*/
+                  );
                 },
-                obscureText: obscureText,
               ),
               const SizedBox(height: 16),
               Consumer(
@@ -154,7 +165,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         ref.read(isLoadingProvider.notifier).state = true;
 
                         // Eseguiamo il sign in
-                        final result = await _signIn(username, password);
+                        final result = await _signIn(username, password, ref);
 
                         //Rimuoviamo il loader
                         ref.read(isLoadingProvider.notifier).state = false;
@@ -209,9 +220,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     );
   }
 
-  Future<bool> _signIn(String username, String password) async {
-    print('$username $password');
-    await Future.delayed(const Duration(seconds: 5));
-    return false;
+  Future<bool> _signIn(String username, String password, WidgetRef ref) async {
+    final result =
+        await ref.read(signInProvider.notifier).signIn(username, password);
+    return true;
   }
 }
