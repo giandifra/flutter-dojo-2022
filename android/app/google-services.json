@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "117375448139",
+    "project_id": "flutterdojo-2022",
+    "storage_bucket": "flutterdojo-2022.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117375448139:android:cabac58bf49f164cfec9ce",
+        "android_client_info": {
+          "package_name": "dev.gdifrancesco.flutter_dojo_2022"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "117375448139-pet6t32q58njqm6su4nds095ur7f2b3f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHiCC_9ML8DpNaA5g_o1K6LFWCBMJuGsI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "117375448139-pet6t32q58njqm6su4nds095ur7f2b3f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

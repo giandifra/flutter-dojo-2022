@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_dojo_2022/application/sign_in_notifier.dart';
 import 'package:flutter_dojo_2022/ui/screens/sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/my_textfield.dart';
@@ -147,13 +148,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onPressed: () async {
                         if (_formSignUpKey.currentState?.validate() ?? false) {
                           final username = usernameController.text;
+                          final email = emailController.text;
                           final password = passwordController.text;
 
                           //Mostriamo il loader
                           ref.read(isLoadingProvider.notifier).state = true;
 
                           // Eseguiamo il sign in
-                          final result = await _signUp(username, password);
+                          final result = await _signUp(email, password, ref);
 
                           //Rimuoviamo il loader
                           ref.read(isLoadingProvider.notifier).state = false;
@@ -184,10 +186,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Future<bool> _signUp(String username, String password) async {
-    print('$username $password');
-    await Future.delayed(const Duration(seconds: 5));
-    return false;
+  Future<bool> _signUp(String email, String password, WidgetRef ref) async {
+    print('$email $password');
+    try{
+      await ref.read(signInProvider.notifier).signUp(email, password);
+      return true;
+    }catch(ex){
+      return false;
+    }
   }
 
 }

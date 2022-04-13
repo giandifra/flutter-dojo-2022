@@ -1,60 +1,74 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_dojo_2022/ui/screens/sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/*enum SignInStatus {
-  authenticated,
-  unauthenticated
-}*/
+import '../domain/entities/user_auth_status.dart';
 
-final simpleProvider = Provider<bool>((ref)=>true);
+final firebaseAuthProvider =
+    Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
 
-final stateProvider = StateProvider<bool>((ref)=>true);
+final signInProvider = StateNotifierProvider<AuthNotifier, SignInStatus>((ref) {
+  return AuthNotifier(ref.read);
+});
 
-final signInProvider = StateNotifierProvider<SignInNotifier, SignInStatus>((ref){
-  return SignInNotifier();
+final authStreamProvider = StreamProvider<SignInStatus>((ref) async* {
+  final stream = FirebaseAuth.instance.authStateChanges();
+  await for (final user in stream) {
+    print('authStreamProvider $user');
+    if (user != null) {
+      yield Authenticated(
+        user.email ?? 'Email',
+        user.displayName ?? 'Display name is null',
+        user.photoURL ?? '',
+      );
+    } else {
+      yield Unauthenticated();
+    }
+  }
+});
+
+final userIsLoggedProvider = Provider<bool>((ref){
+  print('userIsLoggedProvider CREATE');
+  final userStatus = ref.watch(authStreamProvider);
+  return true;
 });
 
 
-class SignInStatus{}
+final userEmailProvider = Provider<String?>((ref){
+  print('userEmailProvider CREATE');
 
-class Authenticated extends SignInStatus{
-  final String email;
-  final String name;
-  final String imageUrl;
+  final userStatus = ref.watch(authStreamProvider).asData?.value;
 
-  Authenticated(this.email, this.name, this.imageUrl);
-
-}
-
-
-class Unauthenticated extends SignInStatus{}
+  if(userStatus != null && userStatus is Authenticated){
+    return userStatus.email;
+  }
+  return null;
+});
 
 
-class SignInNotifier extends StateNotifier<SignInStatus>{
-
+class AuthNotifier extends StateNotifier<SignInStatus> {
+  //Preferiamo passare l oggetto Reader (ref.read) per evitare di ascoltare con ref.watch
   //final Ref ref;
-  //final Reader read;
+  final Reader read;
 
+  AuthNotifier(this.read) : super(Unauthenticated());
 
-  SignInNotifier() : super(Unauthenticated());
-
-  Future<void> signIn(String email, String password) async{
-
+  Future<void> signIn(String email, String password) async {
     // Metodo alternativo per validare i valori di input
     /*if(password.length < 8){
       read(passwordErrorProvider.notifier).state = 'ERRORE DAL PROVIDER';
       return;
     }*/
 
-    await Future.delayed(Duration(seconds: 5));
-    state = Authenticated(email, 'name', 'imageUrl');
+    await read(firebaseAuthProvider)
+        .signInWithEmailAndPassword(email: email, password: password);
   }
 
+  Future<void> signUp(String email, String password) async {
+    await read(firebaseAuthProvider)
+        .createUserWithEmailAndPassword(email: email, password: password);
+  }
 
   Future<void> signOut() async {
-    await Future.delayed(Duration(seconds: 2));
-    state = Unauthenticated();
+    await read(firebaseAuthProvider).signOut();
   }
-
 }
