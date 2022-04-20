@@ -26,24 +26,22 @@ final authStreamProvider = StreamProvider<SignInStatus>((ref) async* {
   }
 });
 
-final userIsLoggedProvider = Provider<bool>((ref){
+final userIsLoggedProvider = Provider<bool>((ref) {
   print('userIsLoggedProvider CREATE');
   final userStatus = ref.watch(authStreamProvider);
-  return true;
+  return userStatus is AsyncData && userStatus.asData!.value is Authenticated;
 });
 
-
-final userEmailProvider = Provider<String?>((ref){
+final userEmailProvider = Provider<String?>((ref) {
   print('userEmailProvider CREATE');
 
   final userStatus = ref.watch(authStreamProvider).asData?.value;
 
-  if(userStatus != null && userStatus is Authenticated){
+  if (userStatus != null && userStatus is Authenticated) {
     return userStatus.email;
   }
   return null;
 });
-
 
 class AuthNotifier extends StateNotifier<SignInStatus> {
   //Preferiamo passare l oggetto Reader (ref.read) per evitare di ascoltare con ref.watch
@@ -64,8 +62,10 @@ class AuthNotifier extends StateNotifier<SignInStatus> {
   }
 
   Future<void> signUp(String email, String password) async {
-    await read(firebaseAuthProvider)
+    final userCredential = await read(firebaseAuthProvider)
         .createUserWithEmailAndPassword(email: email, password: password);
+
+    //TODO aggiungere utente alla collezione users di firestore
   }
 
   Future<void> signOut() async {

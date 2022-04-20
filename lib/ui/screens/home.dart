@@ -1,65 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dojo_2022/application/sign_in_notifier.dart';
+import 'package:flutter_dojo_2022/application/wall_notifier.dart';
+import 'package:flutter_dojo_2022/ui/screens/profile_screen.dart';
+import 'package:flutter_dojo_2022/ui/widgets/home_wall.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/my_checkbox.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
+class MyHomePage extends ConsumerWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  bool active = false;
-
-  void _incrementCounter() {
-    _counter++;
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userIsLogged = ref.watch(userIsLoggedProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Bacheca'),
         elevation: 8.0,
         actions: [
-          Icon(Icons.add),
+          IconButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => ProfileScreen()));
+              },
+              icon: Icon(Icons.account_circle))
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              _counter.toString(),
-              style: TextStyle(color: Colors.red, fontSize: 60),
-            ),
-            MyCheckbox2(
-              active: active,
-              onTap: () {
-                print('Ciao Flutter Dojo');
-
-                setState(() {
-                  _counter++;
-                  active = !active;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+      body: HomeWall(),
+      floatingActionButton:userIsLogged ? FloatingActionButton(
+        onPressed: () {
+          ref.read(wallNotifierProvider.notifier).addPost('Adkadsnk');
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ),
+      ) : null,
     );
   }
 }
