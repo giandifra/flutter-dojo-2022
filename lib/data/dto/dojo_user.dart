@@ -1,6 +1,49 @@
-import '../../domain/entities/dojo_user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DojoUserDTO {
+import '../../domain/entities/dojo_user.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'dojo_user.freezed.dart';
+
+part 'dojo_user.g.dart';
+
+@freezed
+class DojoUserDTO with _$DojoUserDTO {
+  const factory DojoUserDTO({
+    required String userId,
+    required String name,
+    required String surname,
+    required String email,
+    @MyDateTimeConverter() required DateTime createdOn,
+  }) = _DojoUserDTO;
+
+  factory DojoUserDTO.fromJson(Map<String, dynamic> json) =>
+      _$DojoUserDTOFromJson(json);
+
+  factory DojoUserDTO.fromDomain(DojoUser user) {
+    return DojoUserDTO(
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      surname: user.surname,
+      createdOn: user.createdOn,
+    );
+  }
+}
+
+class MyDateTimeConverter implements JsonConverter<DateTime, Timestamp> {
+  const MyDateTimeConverter();
+
+  @override
+  DateTime fromJson(Timestamp timestamp) {
+    return timestamp.toDate();
+  }
+
+  @override
+  Timestamp toJson(DateTime date) => Timestamp.fromDate(date);
+}
+
+/*class DojoUserDTO {
   final String userId;
   final String name;
   final String surname;
@@ -44,7 +87,7 @@ class DojoUserDTO {
       'createdOn': createdOn
     };
   }
-}
+}*/
 
 extension DojoUserDTOX on DojoUserDTO {
   DojoUser toDomain() {

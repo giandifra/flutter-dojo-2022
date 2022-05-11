@@ -1,18 +1,16 @@
-class DojoUser {
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String userId;
-  final String name;
-  final String surname;
-  final String email;
-  final DateTime createdOn;
+part 'dojo_user.freezed.dart';
 
-  DojoUser({
-    required this.userId,
-    required this.name,
-    required this.surname,
-    required this.email,
-    required this.createdOn,
-  });
+@freezed
+class DojoUser with _$DojoUser {
+  const factory DojoUser({
+    required String userId,
+    required String name,
+    required String surname,
+    required String email,
+    required DateTime createdOn,
+  }) = _DojoUser;
 }
 
 extension DojoUserX on DojoUser{

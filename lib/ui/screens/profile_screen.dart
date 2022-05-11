@@ -11,8 +11,6 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-
     ref.listen<bool>(userIsLoggedProvider, (previous, next) {
       print('userIsLogged? => $next');
     });
@@ -20,7 +18,7 @@ class ProfileScreen extends ConsumerWidget {
     final signInStatusAsync = ref.watch(dojoUserStreamProvider);
 
     return signInStatusAsync.when(
-      data: (signInStatus){
+      data: (signInStatus) {
         if (signInStatus is Unauthenticated) {
           return const SignInScreen();
         } else if (signInStatus is Authenticated) {
@@ -33,6 +31,23 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 Text('Email: ${signInStatus.dojoUser.email}'),
                 Text('Name: ${signInStatus.dojoUser.fullName} '),
+                const SizedBox(height: 16),
+                Consumer(
+                  builder:
+                      (BuildContext context, WidgetRef ref, Widget? child) {
+                    final authState = ref.watch(signInProvider);
+                    if (authState is Authenticated) {
+                      return Text(authState.dojoUser.fullName);
+                    }
+                    return Text('unauthenticated');
+                  },
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      ref.read(signInProvider.notifier).editName('Nuovo nome');
+                    },
+                    child: Text('Edit name')),
+                const SizedBox(height: 16),
                 ElevatedButton(
                     onPressed: () {
                       ref.read(signInProvider.notifier).signOut();
@@ -49,15 +64,15 @@ class ProfileScreen extends ConsumerWidget {
           ),
         );
       },
-      error: (err, stack){
+      error: (err, stack) {
         return Scaffold(
-            body: Center(child: Text(err.toString()),));
+            body: Center(
+          child: Text(err.toString()),
+        ));
       },
-      loading: (){
+      loading: () {
         return Center(child: CircularProgressIndicator());
       },
     );
-
-
   }
 }

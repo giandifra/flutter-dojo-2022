@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dojo_2022/application/wall_notifier.dart';
 import 'package:flutter_dojo_2022/data/dto/dojo_user.dart';
@@ -47,7 +48,8 @@ final dojoUserStreamProvider = StreamProvider<SignInStatus>((ref) async* {
 
 final userIsLoggedProvider = Provider<bool>((ref) {
   print('userIsLoggedProvider CREATE');
-  final user = ref.watch(dojoUserStreamProvider).asData?.value ?? Unauthenticated();
+  final user =
+      ref.watch(dojoUserStreamProvider).asData?.value ?? Unauthenticated();
   return user is Authenticated;
 });
 
@@ -94,12 +96,40 @@ class AuthNotifier extends StateNotifier<SignInStatus> {
         createdOn: DateTime.now(),
       );
 
-      final dto = DojoUserDTO.fromDomain(dojoUser);
+      _updateUser(dojoUser, merge: false);
+    }
+  }
 
-      read(firestoreProvider)
-          .collection('users')
-          .doc(dojoUser.userId)
-          .set(dto.toJson());
+  _updateUser(DojoUser user, {bool merge = true}) async {
+    final dto = DojoUserDTO.fromDomain(user);
+
+    await read(firestoreProvider)
+        .collection('users')
+        .doc(user.userId)
+        .set(dto.toJson(), SetOptions(merge: merge));
+  }
+
+  editName(String newName) async {
+    final currentState = state;
+    final status = await read(dojoUserStreamProvider.future);
+
+    if (status is Authenticated) {
+      final currentUser = status.dojoUser;
+      final newUser = currentUser.copyWith(name: newName);
+      final u = newUser.copyWith();
+      if(u == newUser){
+        print('Sì sono uguali');
+      }
+
+      state = Authenticated(newUser);
+      try {
+        await Future.delayed(Duration(seconds: 3));
+        throw Exception();
+        // await _updateUser(newUser);
+
+      } catch (ex) {
+        state = currentState;
+      }
     }
   }
 
