@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dojo_2022/application/wall_notifier.dart';
+import 'package:flutter_dojo_2022/data/dto/dojo_user.dart';
+import 'package:flutter_dojo_2022/domain/entities/dojo_user.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/entities/user_auth_status.dart';
@@ -10,32 +13,48 @@ final signInProvider = StateNotifierProvider<AuthNotifier, SignInStatus>((ref) {
   return AuthNotifier(ref.read);
 });
 
-final authStreamProvider = StreamProvider<SignInStatus>((ref) async* {
-  final stream = FirebaseAuth.instance.authStateChanges();
+final _authStreamProvider = StreamProvider<User?>((ref) async* {
+  final stream = FirebaseAuth.instance.userChanges();
   await for (final user in stream) {
     print('authStreamProvider $user');
-    if (user != null) {
-      yield Authenticated(
-        user.email ?? 'Email',
-        user.displayName ?? 'Display name is null',
-        user.photoURL ?? '',
-      );
-    } else {
-      yield Unauthenticated();
+    yield user;
+  }
+});
+
+final dojoUserStreamProvider = StreamProvider<SignInStatus>((ref) async* {
+  final user = await ref.watch(_authStreamProvider.future);
+
+  if (user != null) {
+    final dojoUserDocStream = ref
+        .watch(firestoreProvider)
+        .collection('users')
+        .doc(user.uid)
+        .snapshots();
+
+    await for (final doc in dojoUserDocStream) {
+      if (doc.data() != null) {
+        final dto = DojoUserDTO.fromJson(doc.data()!);
+        final dojoUser = dto.toDomain();
+        yield Authenticated(dojoUser);
+      } else {
+        yield Unauthenticated();
+      }
     }
+  } else {
+    yield Unauthenticated();
   }
 });
 
 final userIsLoggedProvider = Provider<bool>((ref) {
   print('userIsLoggedProvider CREATE');
-  final userStatus = ref.watch(authStreamProvider);
-  return userStatus is AsyncData && userStatus.asData!.value is Authenticated;
+  final user = ref.watch(dojoUserStreamProvider).asData?.value ?? Unauthenticated();
+  return user is Authenticated;
 });
 
 final userEmailProvider = Provider<String?>((ref) {
   print('userEmailProvider CREATE');
 
-  final userStatus = ref.watch(authStreamProvider).asData?.value;
+  final userStatus = ref.watch(_authStreamProvider).asData?.value;
 
   if (userStatus != null && userStatus is Authenticated) {
     return userStatus.email;
@@ -61,11 +80,27 @@ class AuthNotifier extends StateNotifier<SignInStatus> {
         .signInWithEmailAndPassword(email: email, password: password);
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUp(
+      String firstName, String lastName, String email, String password) async {
     final userCredential = await read(firebaseAuthProvider)
         .createUserWithEmailAndPassword(email: email, password: password);
 
-    //TODO aggiungere utente alla collezione users di firestore
+    if (userCredential.user != null) {
+      final dojoUser = DojoUser(
+        userId: userCredential.user!.uid,
+        name: firstName,
+        surname: lastName,
+        email: email,
+        createdOn: DateTime.now(),
+      );
+
+      final dto = DojoUserDTO.fromDomain(dojoUser);
+
+      read(firestoreProvider)
+          .collection('users')
+          .doc(dojoUser.userId)
+          .set(dto.toJson());
+    }
   }
 
   Future<void> signOut() async {

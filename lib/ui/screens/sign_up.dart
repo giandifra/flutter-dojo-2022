@@ -18,8 +18,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignUpKey = GlobalKey<FormState>();
   bool obscureText = true;
 
-  final fnController = TextEditingController();
-  final usernameController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPwdController = TextEditingController();
@@ -72,7 +72,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   color: Colors.orange,
                 ),
                 MyTextField(
-                  controller: fnController,
+                  controller: firstNameController,
                   hintText: 'First Name',
                   labelText: 'First Name label',
                   validator: (input) {
@@ -82,9 +82,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
                 MyTextField(
-                  controller: usernameController,
-                  hintText: 'Username',
-                  labelText: 'Username label',
+                  controller: lastNameController,
+                  hintText: 'Last name',
+                  labelText: 'Last name label',
                   validator: (input) {
                     if (input!.length < 3) {
                       return 'Username almeno di 3 lettere';
@@ -147,7 +147,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     return ElevatedButton(
                       onPressed: () async {
                         if (_formSignUpKey.currentState?.validate() ?? false) {
-                          final username = usernameController.text;
+                          final firstName = firstNameController.text;
+                          final lastName = lastNameController.text;
                           final email = emailController.text;
                           final password = passwordController.text;
 
@@ -155,7 +156,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ref.read(isLoadingProvider.notifier).state = true;
 
                           // Eseguiamo il sign in
-                          final result = await _signUp(email, password, ref);
+                          final result = await _signUp(firstName, lastName, email, password, ref);
 
                           //Rimuoviamo il loader
                           ref.read(isLoadingProvider.notifier).state = false;
@@ -186,10 +187,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Future<bool> _signUp(String email, String password, WidgetRef ref) async {
+  Future<bool> _signUp(String firstName, String lastName, String email, String password, WidgetRef ref) async {
     print('$email $password');
     try{
-      await ref.read(signInProvider.notifier).signUp(email, password);
+      await ref.read(signInProvider.notifier).signUp(firstName, lastName, email, password);
       return true;
     }catch(ex){
       return false;

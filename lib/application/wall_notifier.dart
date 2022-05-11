@@ -1,16 +1,23 @@
+import 'package:flutter_dojo_2022/application/sign_in_notifier.dart';
 import 'package:flutter_dojo_2022/data/dto/wall_post.dart';
+import 'package:flutter_dojo_2022/domain/entities/user_auth_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
 import '../domain/entities/wall_post.dart';
+import '../domain/entities/dojo_user.dart';
 
 final firestoreProvider = Provider((ref) {
   return FirebaseFirestore.instance;
 });
 
 final wallStreamProvider = StreamProvider<List<WallPost>>((ref) async* {
-  final stream = ref.watch(firestoreProvider).collection('posts').snapshots();
+  final stream = ref
+      .watch(firestoreProvider)
+      .collection('posts')
+      .orderBy('createdOn',descending: true)
+      .snapshots();
 
   await for (final snap in stream) {
     final list = snap.docs.map((doc) {
@@ -31,20 +38,26 @@ class WallNotifier extends StateNotifier<bool> {
   WallNotifier(this.read) : super(true);
 
   Future<void> addPost(String text) async {
+    final userState = await read(dojoUserStreamProvider.future);
 
-    final id = Uuid().v4();
+    if (userState is Authenticated) {
+      final dojoUser = userState.dojoUser;
+      final id = Uuid().v4();
 
-    final post = WallPost(
-      id: id,
-      userId: 'userId',
-      name: 'name',
-      text: text,
-      createdOn: DateTime.now(),
-    );
+      final post = WallPost(
+        id: id,
+        userId: dojoUser.userId,
+        name: dojoUser.fullName,
+        text: text,
+        createdOn: DateTime.now(),
+      );
 
-    final postDto = WallPostDTO.fromDomain(post);
-    final map = postDto.toJson();
+      final postDto = WallPostDTO.fromDomain(post);
+      final map = postDto.toJson();
 
-    await read(firestoreProvider).collection('posts').doc(id).set(map);
+      await read(firestoreProvider).collection('posts').doc(id).set(map);
+    } else {
+      //TODO gestire popup
+    }
   }
 }

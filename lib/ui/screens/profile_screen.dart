@@ -4,6 +4,7 @@ import 'package:flutter_dojo_2022/ui/screens/sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entities/user_auth_status.dart';
+import '../../domain/entities/dojo_user.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class ProfileScreen extends ConsumerWidget {
       print('userIsLogged? => $next');
     });
 
-    final signInStatusAsync = ref.watch(authStreamProvider);
+    final signInStatusAsync = ref.watch(dojoUserStreamProvider);
 
     return signInStatusAsync.when(
       data: (signInStatus){
@@ -30,8 +31,8 @@ class ProfileScreen extends ConsumerWidget {
             body: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text('Email: ${signInStatus.email}'),
-                Text('Name: ${signInStatus.name}'),
+                Text('Email: ${signInStatus.dojoUser.email}'),
+                Text('Name: ${signInStatus.dojoUser.fullName} '),
                 ElevatedButton(
                     onPressed: () {
                       ref.read(signInProvider.notifier).signOut();
@@ -42,12 +43,15 @@ class ProfileScreen extends ConsumerWidget {
           );
         }
 
-        return Center(
-          child: Text('ERRORE'),
+        return Scaffold(
+          body: Center(
+            child: Text('ERRORE'),
+          ),
         );
       },
       error: (err, stack){
-        return Center(child: Text(err.toString()),);
+        return Scaffold(
+            body: Center(child: Text(err.toString()),));
       },
       loading: (){
         return Center(child: CircularProgressIndicator());

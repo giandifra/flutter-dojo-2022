@@ -25,13 +25,15 @@ class MyHomePage extends ConsumerWidget {
         ],
       ),
       body: HomeWall(),
-      floatingActionButton:userIsLogged ? FloatingActionButton(
-        onPressed: () {
-          ref.read(wallNotifierProvider.notifier).addPost('Adkadsnk');
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ) : null,
+      floatingActionButton: userIsLogged
+          ? FloatingActionButton(
+              onPressed: () {
+                ref.read(wallNotifierProvider.notifier).addPost('Adkadsnk');
+              },
+              tooltip: 'Increment',
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

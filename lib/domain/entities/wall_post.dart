@@ -1,6 +1,3 @@
-
-
-
 class WallPost {
   final String id;
   final String userId;

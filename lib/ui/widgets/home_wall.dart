@@ -13,7 +13,7 @@ class HomeWall extends ConsumerWidget {
 
     return postsAsync.when(data: (list) {
       if (list.isEmpty) {
-        return Center(
+        return const Center(
           child: Text('Non ci sono post!'),
         );
       }
@@ -28,7 +28,7 @@ class HomeWall extends ConsumerWidget {
         child: Text(err.toString()),
       );
     }, loading: () {
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     });
@@ -51,6 +51,7 @@ class WallPostWidget extends StatelessWidget {
             Text(post.id),
             Text(post.name),
             Text(post.text),
+            Text(post.createdOn.toString()),
           ],
         ),
       ),
