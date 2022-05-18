@@ -19,49 +19,15 @@ class ProfileScreen extends ConsumerWidget {
 
     return signInStatusAsync.when(
       data: (signInStatus) {
-        if (signInStatus is Unauthenticated) {
-          return const SignInScreen();
-        } else if (signInStatus is Authenticated) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Il mio profilo'),
-            ),
-            body: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text('Email: ${signInStatus.dojoUser.email}'),
-                Text('Name: ${signInStatus.dojoUser.fullName} '),
-                const SizedBox(height: 16),
-                Consumer(
-                  builder:
-                      (BuildContext context, WidgetRef ref, Widget? child) {
-                    final authState = ref.watch(signInProvider);
-                    if (authState is Authenticated) {
-                      return Text(authState.dojoUser.fullName);
-                    }
-                    return Text('unauthenticated');
-                  },
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      ref.read(signInProvider.notifier).editName('Nuovo nome');
-                    },
-                    child: Text('Edit name')),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                    onPressed: () {
-                      ref.read(signInProvider.notifier).signOut();
-                    },
-                    child: Text('Sign out')),
-              ],
-            ),
-          );
-        }
-
-        return Scaffold(
-          body: Center(
-            child: Text('ERRORE'),
-          ),
+        return signInStatus.when(
+          authenticated: (dojoUser) {
+            return AuthenticatedWidget(
+              dojoUser: dojoUser,
+            );
+          },
+          unauthenticated: () {
+            return const SignInScreen();
+          },
         );
       },
       error: (err, stack) {
@@ -73,6 +39,50 @@ class ProfileScreen extends ConsumerWidget {
       loading: () {
         return Center(child: CircularProgressIndicator());
       },
+    );
+  }
+}
+
+class AuthenticatedWidget extends ConsumerWidget {
+  final DojoUser dojoUser;
+
+  const AuthenticatedWidget({Key? key, required this.dojoUser})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Il mio profilo'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text('Email: ${dojoUser.email}'),
+          Text('Name: ${dojoUser.fullName} '),
+          const SizedBox(height: 16),
+          Consumer(
+            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+              final authState = ref.watch(signInProvider);
+              if (authState is Authenticated) {
+                return Text(dojoUser.fullName);
+              }
+              return Text('unauthenticated');
+            },
+          ),
+          ElevatedButton(
+              onPressed: () {
+                ref.read(signInProvider.notifier).editName('Nuovo nome');
+              },
+              child: Text('Edit name')),
+          const SizedBox(height: 16),
+          ElevatedButton(
+              onPressed: () {
+                ref.read(signInProvider.notifier).signOut();
+              },
+              child: Text('Sign out')),
+        ],
+      ),
     );
   }
 }

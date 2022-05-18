@@ -16,7 +16,7 @@ final wallStreamProvider = StreamProvider<List<WallPost>>((ref) async* {
   final stream = ref
       .watch(firestoreProvider)
       .collection('posts')
-      .orderBy('createdOn',descending: true)
+      .orderBy('createdOn', descending: true)
       .snapshots();
 
   await for (final snap in stream) {
@@ -40,8 +40,7 @@ class WallNotifier extends StateNotifier<bool> {
   Future<void> addPost(String text) async {
     final userState = await read(dojoUserStreamProvider.future);
 
-    if (userState is Authenticated) {
-      final dojoUser = userState.dojoUser;
+    userState.when(authenticated: (dojoUser) async {
       final id = Uuid().v4();
 
       final post = WallPost(
@@ -56,8 +55,8 @@ class WallNotifier extends StateNotifier<bool> {
       final map = postDto.toJson();
 
       await read(firestoreProvider).collection('posts').doc(id).set(map);
-    } else {
+    }, unauthenticated: () {
       //TODO gestire popup
-    }
+    });
   }
 }

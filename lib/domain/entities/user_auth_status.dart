@@ -1,12 +1,10 @@
 import 'package:flutter_dojo_2022/domain/entities/dojo_user.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class SignInStatus {}
+part 'user_auth_status.freezed.dart';
 
-class Authenticated extends SignInStatus {
-
-  final DojoUser dojoUser;
-
-  Authenticated(this.dojoUser);
+@freezed
+class SignInStatus with _$SignInStatus {
+  const factory SignInStatus.authenticated(DojoUser user) = Authenticated;
+  const factory SignInStatus.unauthenticated() = Unauthenticated;
 }
-
-class Unauthenticated extends SignInStatus {}

@@ -11,27 +11,33 @@ class HomeWall extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final postsAsync = ref.watch(wallStreamProvider);
 
-    return postsAsync.when(data: (list) {
-      if (list.isEmpty) {
-        return const Center(
-          child: Text('Non ci sono post!'),
+    return postsAsync.when(
+      data: (list) {
+        if (list.isEmpty) {
+          return const Center(
+            child: Text('Non ci sono post!'),
+          );
+        }
+        return ListView.builder(
+          itemCount: list.length,
+          itemBuilder: (context, index) {
+            return WallPostWidget(post: list[index]);
+          },
         );
-      }
-      return ListView.builder(
-        itemCount: list.length,
-        itemBuilder: (context, index) {
-          return WallPostWidget(post: list[index]);
-        },
-      );
-    }, error: (err, stack) {
-      return Center(
-        child: Text(err.toString()),
-      );
-    }, loading: () {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    });
+      },
+      error: (err, stack) {
+        return Center(
+          child: Text(
+            err.toString(),
+          ),
+        );
+      },
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
   }
 }
 

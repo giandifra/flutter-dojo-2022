@@ -69,7 +69,7 @@ class AuthNotifier extends StateNotifier<SignInStatus> {
   //final Ref ref;
   final Reader read;
 
-  AuthNotifier(this.read) : super(Unauthenticated());
+  AuthNotifier(this.read, ) : super(Unauthenticated());
 
   Future<void> signIn(String email, String password) async {
     // Metodo alternativo per validare i valori di input
@@ -109,28 +109,32 @@ class AuthNotifier extends StateNotifier<SignInStatus> {
         .set(dto.toJson(), SetOptions(merge: merge));
   }
 
+  // Per mostrare il funzionamento del metodo copyWith e
+  // dell'operatatore di uguaglianza ==
   editName(String newName) async {
     final currentState = state;
     final status = await read(dojoUserStreamProvider.future);
 
-    if (status is Authenticated) {
-      final currentUser = status.dojoUser;
-      final newUser = currentUser.copyWith(name: newName);
-      final u = newUser.copyWith();
-      if(u == newUser){
-        print('Sì sono uguali');
-      }
+    status.maybeWhen(
+      authenticated: (DojoUser currentUser) async {
+        final newUser = currentUser.copyWith(name: newName);
+        final u = newUser.copyWith();
+        if (u == newUser) {
+          print('Sì sono uguali');
+        }
 
-      state = Authenticated(newUser);
-      try {
-        await Future.delayed(Duration(seconds: 3));
-        throw Exception();
-        // await _updateUser(newUser);
+        state = Authenticated(newUser);
+        try {
+          await Future.delayed(Duration(seconds: 3));
+          throw Exception();
+          // await _updateUser(newUser);
 
-      } catch (ex) {
-        state = currentState;
-      }
-    }
+        } catch (ex) {
+          state = currentState;
+        }
+      },
+      orElse: () {},
+    );
   }
 
   Future<void> signOut() async {
